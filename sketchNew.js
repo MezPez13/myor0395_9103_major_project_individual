@@ -15,12 +15,15 @@ let lineImg;
 let lineSystem;
 let trails = [];
 
-
+const fps = 30;
 let song;
 let volume = 1.0;
 let fft;
-let smoothing = 0.3;
-let numBins = 512;
+let spectrogramFft;
+const smoothing = 0.3;
+const numBins = 512;
+const spectrogramNumBins = 128;
+const spectrogramUsedBins = spectrogramNumBins / 2;
 
 function preload() {
   img = loadImage('assets/KT_Pathway_Avenue.jpg');
@@ -28,11 +31,15 @@ function preload() {
 }
 
 function setup() {
+  frameRate(fps)
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.drawingContext.getContextAttributes().willReadFrequently = true;
   angleMode(DEGREES);
   noFill();
   img.resize(width, height);
+  img.loadPixels();
+  // image(img, 0, 0, width, height);
+
 
   // Initialize weave positions
   drawWeaves();
@@ -40,22 +47,21 @@ function setup() {
   // Create graphics buffers
   lineImg = createGraphics(width, height);
   threadingWormsImg = createGraphics(width, height);
+  spectrogramImg = createGraphics(width, height);
 
   // Initialize line system
   lineSystem = new LineSystem(weaves);
 
-  for (const weave of weaves) {
-    for (let i = 0; i < 3; ++i) {
-      threadingWorms.push(new ThreadingWorm(weave.centreX, weave.centreY));
-    }
+  const filipinoColours = [color(0, 0, 255, 200), color(255, 0, 0, 200), color(255, 255, 255, 100), color(255, 255, 50)];
+  for (let i = 0; i < 4; ++i) {
+    threadingWorms.push(new ThreadingWorm(0, height / 4 * (i + 0.5), flowFieldSpacing / 2, i + 1, filipinoColours[i]));
   }
 
-  for (let i = 0; i < 8; i++) {
-    trails.push(new LineTrail(random(width), random(height), 0.5, 150));
-  }
 
   let button = createButton('Play/Pause');
   fft = new p5.FFT(smoothing, numBins);
+  spectrogramFft = new p5.FFT(smoothing, spectrogramNumBins);
+  song.connect(spectrogramFft);
   song.connect(fft);
   button.position((width - button.width) / 2, height - button.height - 2);
   button.mousePressed(playPause);
@@ -83,8 +89,9 @@ function mouseMoved() {
 }
 
 function draw() {
-  background(255, 20);
+  background(255);
 
+  const spectrogram = spectrogramFft.analyze();
   let spectrum = fft.analyze();
   let bassVolume = 0;
   for (let i = 0; i < 4; ++i) {
@@ -99,17 +106,9 @@ function draw() {
   vocalVolume /= 20;
 
   // Draw flow field from circular weave logic
-  drawFlowField();
+  drawFlowField(spectrogram.slice(0, spectrogramUsedBins), spectrogramImg);
+  image(spectrogramImg, 0, 0, width, height);
   noTint();
-
-  // Render lines using LineSystem
-  lineSystem.render(lineImg);
-
-  // Update and display trails
-  for (let t of trails) {
-    t.update();
-    t.display();
-  }
 
   // Draw weaves on top
   push();
@@ -124,17 +123,22 @@ function draw() {
 
   push();
   threadingWormsImg.push();
-  threadingWormsImg.erase(20, 20);
+  threadingWormsImg.erase(5, 20);
   threadingWormsImg.rect(0, 0, width, height);
   threadingWormsImg.noErase();
   threadingWormsImg.pop();
 
-  for (const worm of threadingWorms) {
-    worm.update();
-    worm.render(threadingWormsImg);
+  for (let i = 0; i < threadingWorms.length; i++) {
+    let avgAmp = 0;
+    for (let j = i * spectrogramUsedBins / threadingWorms.length; j < (i + 1) * spectrogramUsedBins / threadingWorms.length; j++) {
+      avgAmp += spectrogram[i];
+    }
+    avgAmp /= spectrogramUsedBins / threadingWorms.length;
+    threadingWorms[i].update(avgAmp);
+    threadingWorms[i].render(threadingWormsImg);
   }
-  image(threadingWormsImg, 0, 0, width, height);
   pop();
+  image(threadingWormsImg, 0, 0, width, height);
 }
 
 function windowResized() {

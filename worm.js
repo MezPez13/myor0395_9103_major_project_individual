@@ -1,33 +1,18 @@
-const fps = 20; // changed from 30 - kim
-const baseFreq = 0.4;
-const freqRange = 0.3;
-const displacement = 2; // changed from 4 - kim
-const amplitude = 50;
-const baseAmplitude = 50;
-const amplitudeRange = 10;
-const baseSize = 4; // changed from 10 - kim
-const baseDecay = 50;
-const decayRange = 10;
-
 // Equation for worm movement
-function movementCalculation(x, y, idx, amp, freq, displacement, trj, decay) {
-  // Amplitude calculation
-  const tmpY = amp * Math.exp(-idx / decay) * sin(idx * displacement * 360 * freq / fps);
+function movementCalculation(x, y, idx, amp, freq, displacement) {
   // Displacement calculation
-  const tmpX = idx * displacement;
-  // Rotation and displacement
-  const newX = x + cos(trj) * tmpX - sin(trj) * tmpY;
-  const newY = y + sin(trj) * tmpX + cos(trj) * tmpY;
+  const newX = x + idx * displacement;
+  // Amplitude calculation
+  const newY = y + amp * sin(idx * 360 * freq / fps);
   return { x: newX, y: newY };
 }
 
 class ThreadingWorm {
-  constructor(startX, startY) {
-    this.frequency = baseFreq + random() * freqRange - freqRange / 2;
-    this.displacement = 2; // changed from 4 - kim
-    this.decay = baseDecay + random() * decayRange - decayRange / 2;
-    this.amplitude = baseAmplitude + random() * amplitudeRange - amplitudeRange / 2;
+  constructor(startX, startY, displacement, frequency, colour) {
+    this.frequency = frequency;
+    this.displacement = displacement; // changed from 4 - kim
     this.reset(startX, startY);
+    this.colour = colour;
   }
 
   reset(startX, startY) {
@@ -36,35 +21,34 @@ class ThreadingWorm {
     this.startY = startY;
     this.curX = 0;
     this.curY = 0;
-    this.trajectory = 360 * random();
   }
 
-  update() {
-    if (this.curX < 0 || this.curX > width || this.curY < 0 || this.curY > height) {
+  update(amplitude) {
+    if (this.curX < 0 || this.curX > width) {
       this.reset(this.startX, this.startY);
     }
 
-    const newPos = movementCalculation(this.startX, this.startY, this.idx, this.amplitude, this.frequency, this.displacement, this.trajectory, this.decay);
+    const baseAmplitude = height / 48;
+    const amplitudeRange = height / 8;
+
+    const newPos = movementCalculation(this.startX, this.startY, this.idx, baseAmplitude + Math.max((amplitude - 128) / 256 * amplitudeRange, 0), this.frequency, this.displacement);
     this.curX = newPos.x;
     this.curY = newPos.y;
     this.idx++;
   }
 
   render(graphics) {
-    frameRate(fps);
     const scaling = this.startX * this.startY;
+
+    const baseSize = 10; // changed from 10 - kim
+
 
     // pulsating size
     const size = baseSize + sin(this.idx * 3 + scaling * 45) * 2;
 
-
-    // smoothly shifting colors over time
-    const r = sin(this.idx * 2 + scaling * 30) * 127 + 128;
-    const g = sin(this.idx * 2 + scaling * 50 + 120) * 127 + 128;
-    const b = sin(this.idx * 2 + scaling * 80 + 240) * 127 + 128;
-
-    graphics.noStroke();
-    graphics.fill(r, g, b);
+    graphics.stroke(0, 100);
+    graphics.strokeWeight(2);
+    graphics.fill(this.colour);
     graphics.circle(this.curX, this.curY, size);
 
     // optional orbiting red satellite for each dot
