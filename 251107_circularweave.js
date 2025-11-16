@@ -12,11 +12,13 @@ function drawWeaves() {
   translate(width / 2, height / 2);
   rotate(PI / 4);
 
+  // Draw bass weaves as corners of a square positioned at the centre of the screen
   bassWeaves.push(new Weave(width / 4, height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
   bassWeaves.push(new Weave(3 * width / 4, height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
   bassWeaves.push(new Weave(width / 4, 3 * height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
   bassWeaves.push(new Weave(3 * width / 4, 3 * height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
 
+  // Draw vocal weave at the centre of the screen
   rotate(3 * PI / 4);
   vocalWeave = new Weave(width / 2, height / 2, 1.5 * radius * random(0.8, 1.2), color(0, 0, 255), color(255, 0, 100));
 
@@ -24,6 +26,7 @@ function drawWeaves() {
 }
 
 class Weave {
+  // Initialise weave
   constructor(centreX, centreY, weaveRadius, overColour, underColour) {
     this.centreX = centreX;
     this.centreY = centreY;
@@ -44,6 +47,7 @@ class Weave {
 
   update(amplitude) {
     this.time += this.waveSpeed;
+    // Scale the weave relative to the input amplitude
     this.scale = max(2 * (amplitude - 128), 0) / 128;
   }
 

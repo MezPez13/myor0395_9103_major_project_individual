@@ -9,8 +9,9 @@ function drawFlowField(spectrum, spectrogramImg) {
   image(img, 0, 0, width, height);
 
   const dotsPerWidth = width / flowFieldSpacing;
-  const spectrumIdx = Math.round((frameCount / 2) % dotsPerWidth); // Slow the rate down
+  const spectrumIdx = Math.round((frameCount / 2) % dotsPerWidth); // Controls the spectrum's speed
 
+  // Calculate the average amplitude of the spectrum
   let avgAmplitude = 0;
   for (const a of spectrum) {
     avgAmplitude += a;
@@ -19,6 +20,8 @@ function drawFlowField(spectrum, spectrogramImg) {
   avgAmplitude /= spectrum.length;
 
   noTint();
+
+  // Create the fading effect through the erase function
   spectrogramImg.push();
   spectrogramImg.erase(3, 255);
   spectrogramImg.rect(0, 0, width, height);
@@ -41,6 +44,10 @@ function drawFlowField(spectrum, spectrogramImg) {
       let alpha = lerp(0, 255, progress);
 
       noStroke();
+
+      // When the index is equal to the current spectrum's index,
+      // create a dot scaled relative to the associated frequency's
+      // amplitude
       if (idx == spectrumIdx) {
         spectrogramImg.colorMode(HSB, 255);
         spectrogramImg.noStroke();
@@ -52,13 +59,15 @@ function drawFlowField(spectrum, spectrogramImg) {
         fill(r, g, b, alpha);
       }
 
-
+      // Scale the noise offsets relative to the spectrum's average
+      // amplitude
       let offsetX = map(noise(x * 0.01, y * 0.01, frameCount * 0.1), 0, 1, -3, 3) * avgAmplitude / 128;
       let offsetY = map(noise(x * 0.01 + 100, y * 0.01 + 100, frameCount * 0.1), 0, 1, -3, 3) * avgAmplitude / 128;
       let size = baseSize + sin(frameCount * 0.05 + (x + y) * 0.01) * flowFieldSpacing;
 
       ellipse(x + offsetX, y + offsetY, size, size);
 
+      // Draw the spectrum dots on the spectrogram's canvas
       if (idx == spectrumIdx) {
         spectrogramImg.ellipse(x + offsetX, y + offsetY, size, size);
       }

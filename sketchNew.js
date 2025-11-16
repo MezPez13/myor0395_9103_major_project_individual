@@ -26,7 +26,10 @@ const spectrogramNumBins = 128;
 const spectrogramUsedBins = spectrogramNumBins / 2;
 
 function preload() {
+  // Load artwork
   img = loadImage('assets/KT_Pathway_Avenue.jpg');
+
+  // Load audio
   song = loadSound('assets/Rage Against The Machine - Take The Power Back (Audio).mp3');
 }
 
@@ -38,7 +41,6 @@ function setup() {
   noFill();
   img.resize(width, height);
   img.loadPixels();
-  // image(img, 0, 0, width, height);
 
 
   // Initialize weave positions
@@ -52,14 +54,19 @@ function setup() {
   // Initialize line system
   lineSystem = new LineSystem(weaves);
 
+  // Constant colours of the Filipino flag
   const filipinoColours = [color(0, 0, 255, 200), color(255, 0, 0, 200), color(255, 255, 255, 100), color(255, 255, 50)];
+
+  // Instantiate and initialise worms based on the flag colours
   for (let i = 0; i < 4; ++i) {
     threadingWorms.push(new ThreadingWorm(0, height / 4 * (i + 0.5), flowFieldSpacing / 2, i + 1, filipinoColours[i]));
   }
 
-
+  // Create a play/pause button
   let button = createButton('Play/Pause');
+  // Create high precision FFT
   fft = new p5.FFT(smoothing, numBins);
+  // Create lower precision FFT for the spectrogram
   spectrogramFft = new p5.FFT(smoothing, spectrogramNumBins);
   song.connect(spectrogramFft);
   song.connect(fft);
@@ -68,16 +75,16 @@ function setup() {
   playPause()
 }
 
+// Play/pause function from tutorial code
 function playPause() {
   if (song.isPlaying()) {
     song.stop();
   } else {
-    // We can use song.play() here if we want the song to play once
-    // In this case, we want the song to loop, so we call song.loop()
     song.loop();
   }
 }
 
+// Mouse mapping function from tutorial code
 function mouseMoved() {
   // Map the mouseY to a volume value between 0 and 1 (clamped)
   volume = map(mouseY, 0, height, 1, 0, true);
@@ -91,7 +98,7 @@ function mouseMoved() {
 function draw() {
   background(255);
 
-  const spectrogram = spectrogramFft.analyze();
+  // Calculate the average amplitude of the bass
   let spectrum = fft.analyze();
   let bassVolume = 0;
   for (let i = 0; i < 4; ++i) {
@@ -99,6 +106,7 @@ function draw() {
   }
   bassVolume /= 4;
 
+  // Calculate the average amplitude of the vocals/guitars
   let vocalVolume = 0;
   for (let i = 0; i < 20; ++i) {
     vocalVolume += spectrum[i + 83];
@@ -106,21 +114,24 @@ function draw() {
   vocalVolume /= 20;
 
   // Draw flow field from circular weave logic
+  const spectrogram = spectrogramFft.analyze();
   drawFlowField(spectrogram.slice(0, spectrogramUsedBins), spectrogramImg);
   image(spectrogramImg, 0, 0, width, height);
   noTint();
 
-  // Draw weaves on top
+  // Draw the bass weaves
   push();
   for (const bassWeave of bassWeaves) {
     bassWeave.update(bassVolume);
     bassWeave.display();
   }
 
+  // Draw the vocal weaves
   vocalWeave.update(vocalVolume);
   vocalWeave.display();
   pop();
 
+  // Draw the threads
   push();
   threadingWormsImg.push();
   threadingWormsImg.erase(5, 20);
@@ -128,6 +139,8 @@ function draw() {
   threadingWormsImg.noErase();
   threadingWormsImg.pop();
 
+  // Update the threads based on the average amplitudes sections of
+  // the spectrogram's FFT
   for (let i = 0; i < threadingWorms.length; i++) {
     let avgAmp = 0;
     for (let j = i * spectrogramUsedBins / threadingWorms.length; j < (i + 1) * spectrogramUsedBins / threadingWorms.length; j++) {

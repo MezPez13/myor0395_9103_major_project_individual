@@ -8,6 +8,7 @@ function movementCalculation(x, y, idx, amp, freq, displacement) {
 }
 
 class ThreadingWorm {
+  // Initialise the thread
   constructor(startX, startY, displacement, frequency, colour) {
     this.frequency = frequency;
     this.displacement = displacement; // changed from 4 - kim
@@ -15,6 +16,7 @@ class ThreadingWorm {
     this.colour = colour;
   }
 
+  // Reset the thread
   reset(startX, startY) {
     this.idx = 0;
     this.startX = startX;
@@ -28,9 +30,11 @@ class ThreadingWorm {
       this.reset(this.startX, this.startY);
     }
 
+    // Update the amplitude based on the height of the screen
     const baseAmplitude = height / 48;
     const amplitudeRange = height / 8;
 
+    // Update current position
     const newPos = movementCalculation(this.startX, this.startY, this.idx, baseAmplitude + Math.max((amplitude - 128) / 256 * amplitudeRange, 0), this.frequency, this.displacement);
     this.curX = newPos.x;
     this.curY = newPos.y;
@@ -51,7 +55,7 @@ class ThreadingWorm {
     graphics.fill(this.colour);
     graphics.circle(this.curX, this.curY, size);
 
-    // optional orbiting red satellite for each dot
+    // Orbiting red satellite for each dot
     const orbitAngle = this.idx * 5 + scaling * 30;
     const orbitRadius = 10 + sin(this.idx * 2 + scaling * 100) * 5;
     const orbitX = this.curX + cos(orbitAngle) * orbitRadius;
