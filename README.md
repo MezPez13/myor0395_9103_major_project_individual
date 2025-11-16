@@ -67,6 +67,8 @@ In the group task, the threads expreienced exponential decay. This is not the ca
 
 Metropolitan Museum of Manilla 2025, *PACITA ABAD: PHILIPPINE PAINTER*, viewed 16 November 2025, https://metmuseum.ph/pacitaabad#:~:text=This%20exhibition%20celebrates%20the%20late,art%2C%20becoming%20enamored%20of%20painting 
 
+Middlebrook, J 2024, *Sound spectrogram*, University of Nabraska Omaha, viewed 11 November 2025, https://www.artworkarchive.com/profile/nebraskapublicart/artwork/sound-spectrogram-nebraska-1-for-public-art?collection=1-new-acquisitions-f614430d-e970-4010-911e-32525dd1aee3 
+
 Walker Art Center 2024, *Chronology of the life and Work of Pacita Abad*, viewed 15 November 2025, https://walkerart.org/magazine/chronology-of-the-life-of-pacita-abad/
 
 Walls, T 2022, *Take the power back: How Rage Against The Machine's debut LP created rap-rock with a message*, viewed 16 November 2025, https://www.grammy.com/news/rage-against-the-machine-debut-album-30th-anniversary-creating-blueprint-for-rap-rock-with-a-message 
