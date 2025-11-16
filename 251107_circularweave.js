@@ -12,20 +12,23 @@ function drawWeaves() {
   translate(width / 2, height / 2);
   rotate(PI / 4);
 
-  bassWeaves.push(new Weave(width / 4, height / 4, radius * random(0.8, 1.2)));
-  bassWeaves.push(new Weave(3 * width / 4, height / 4, radius * random(0.8, 1.2)));
-  bassWeaves.push(new Weave(width / 4, 3 * height / 4, radius * random(0.8, 1.2)));
-  bassWeaves.push(new Weave(3 * width / 4, 3 * height / 4, radius * random(0.8, 1.2)));
+  bassWeaves.push(new Weave(width / 4, height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
+  bassWeaves.push(new Weave(3 * width / 4, height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
+  bassWeaves.push(new Weave(width / 4, 3 * height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
+  bassWeaves.push(new Weave(3 * width / 4, 3 * height / 4, radius * random(0.8, 1.2), color(255, 0, 0), color(0, 255, 100)));
+
+  rotate(3 * PI / 4);
+  vocalWeave = new Weave(width / 2, height / 2, 1.5 * radius * random(0.8, 1.2), color(0, 0, 255), color(255, 0, 100));
 
   pop();
 }
 
 class Weave {
-  constructor(centreX, centreY, weaveRadius) {
+  constructor(centreX, centreY, weaveRadius, overColour, underColour) {
     this.centreX = centreX;
     this.centreY = centreY;
     this.weaveRadius = weaveRadius;
-    this.strokewidth = 1;
+    this.strokewidth = 2;
     this.pointsOnCircle = 20;
     this.wovenLayers = 9;
     this.scale = 1;
@@ -35,13 +38,13 @@ class Weave {
     this.rotationSpeed = 0.05;
     this.time = 0;
 
-    this.overColour = color(255, 0, 0);
-    this.underColour = color(0, 255, 100);
+    this.overColour = overColour;
+    this.underColour = underColour;
   }
 
   update(amplitude) {
     this.time += this.waveSpeed;
-    this.scale = amplitude / 128;
+    this.scale = max(2 * (amplitude - 128), 0) / 128;
   }
 
   display() {

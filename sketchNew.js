@@ -2,14 +2,15 @@
 
 let img;
 let weaves = [];
+let vocalWeave;
 let bassWeaves = [];
 let numBassWeaves = 4;
 let guitarWeaves = [];
 let threadingWorms = [];
 let threadingWormsImg;
-let weaveSpacing = 6;
-let spacing = 12;
-let morphDuration = 150;
+const weaveSpacing = 6;
+const flowFieldSpacing = 6;
+const morphDuration = 150;
 let lineImg;
 let lineSystem;
 let trails = [];
@@ -85,14 +86,17 @@ function draw() {
   background(255, 20);
 
   let spectrum = fft.analyze();
-  // const bassVolume = fft.getEnergy(0, 400);
-  bassVolume = 0;
+  let bassVolume = 0;
   for (let i = 0; i < 4; ++i) {
     bassVolume += spectrum[i + 2];
   }
   bassVolume /= 4;
 
-  console.log(bassVolume)
+  let vocalVolume = 0;
+  for (let i = 0; i < 20; ++i) {
+    vocalVolume += spectrum[i + 83];
+  }
+  vocalVolume /= 20;
 
   // Draw flow field from circular weave logic
   drawFlowField();
@@ -113,6 +117,9 @@ function draw() {
     bassWeave.update(bassVolume);
     bassWeave.display();
   }
+
+  vocalWeave.update(vocalVolume);
+  vocalWeave.display();
   pop();
 
   push();
